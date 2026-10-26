@@ -2674,6 +2674,585 @@ void loop() {
     ],
     sim: `project`,
   },
+  {
+    id: `garage`,
+    title: `Mini parking lot`,
+    cardTitle: `17. Mini parking`,
+    thumb: `garage`,
+    heading: `Automatic mini parking lot`,
+    lede: `An Arduino project to control vehicle entry and count available parking spaces. An ultrasonic sensor detects approaching cars, an SG90 servo lifts the barrier if spaces are free, and a 16×2 LCD screen shows the live count.`,
+    features: [
+      [`sensor`, `Ultrasonic entrance sensor detects approaching cars`],
+      [`servo`, `SG90 servo barrier opens to 90° when a spot is free`],
+      [`screen`, `16×2 I²C LCD displays <code>Espacios: 2/3</code>`],
+      [`car`, `3 bays with red/green status lights — click cars to test`],
+    ],
+    pinout: [
+      [`5V · GND`, `Power rail`, `Supplies the LCD, HC-SR04 and SG90 servo.`, `#d64a3a`],
+      [`D9 · D10`, `Trig · Echo`, `Entrance ultrasonic sensor.`, `#f0b53a`],
+      [`~D6`, `Servo (barrier)`, `0° closed, 90° open.`, `#ef8a3a`],
+      [`SDA · SCL`, `LCD 16×2 (I²C)`, `Two wires update the blue screen at 0x27.`, `#3d6fc4`],
+    ],
+    example: [
+      `<code>LiquidCrystal_I2C lcd(0x27, 16, 2)</code> drives the 16-column, 2-row screen over SDA and SCL.`,
+      `The loop triggers the entrance <code>HC-SR04</code> on pins 9 and 10 to measure the distance <code>cm</code> to an approaching car.`,
+      `When <code>cm &lt; {{trigger}}</code> and <code>ocupados &lt; TOTAL</code>, <code>barrera.write(90)</code> lifts the barrier arm, waits <code>{{hold}}</code> ms for the car to pass, and lowers it back to <code>0°</code>.`,
+      `<code>mostrarCupo()</code> prints <code>Espacios: X/3</code> on the LCD, while each bay’s indicator light switches between green (free) and red (occupied).`,
+    ],
+    specs: [
+      [`Capacity`, `3 parking bays with red/green LEDs`],
+      [`Sensor`, `HC-SR04 ultrasonic (2–400 cm)`],
+      [`Barrier`, `SG90 micro servo (0°–90°)`],
+      [`Display`, `16×2 LCD with I²C backpack (0x27)`],
+      [`Interaction`, `Click the cars or let auto-traffic run`],
+    ],
+    params: [
+      {
+        key: `cars`,
+        part: `garage`,
+        label: `Parked cars`,
+        type: `choice`,
+        value: 2,
+        options: [
+          { value: 0, label: `0 / 3`, note: `All 3 spaces available (Espacios: 3/3).` },
+          { value: 1, label: `1 / 3`, note: `2 spaces available (Espacios: 2/3).` },
+          { value: 2, label: `2 / 3`, note: `1 space available (Espacios: 1/3).` },
+          { value: 3, label: `3 / 3`, note: `Parking lot full (Espacios: 0/3).` },
+        ],
+      },
+      {
+        key: `traffic`,
+        part: `garage`,
+        label: `Auto traffic while running`,
+        type: `toggle`,
+        value: !0,
+      },
+      {
+        key: `trigger`,
+        part: `garage`,
+        label: `Open gate within`,
+        type: `range`,
+        min: 5,
+        max: 25,
+        step: 1,
+        value: 12,
+        unit: `cm`,
+      },
+      {
+        key: `hold`,
+        part: `garage`,
+        label: `Keep gate open for`,
+        type: `range`,
+        min: 600,
+        max: 3e3,
+        step: 200,
+        value: 1400,
+        unit: `ms`,
+      },
+    ],
+    code: `#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <Servo.h>
+
+const int TRIG = 9, ECHO = 10;
+const int TOTAL = 3;
+int ocupados = {{cars}};
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+Servo barrera;
+
+void mostrarCupo() {
+  int libres = TOTAL - ocupados;
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Espacios: ");
+  lcd.print(libres);
+  lcd.print("/3");
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+  barrera.attach(6);
+  barrera.write(0);  // barrier closed
+  lcd.init();
+  lcd.backlight();
+  mostrarCupo();
+}
+
+void loop() {
+  digitalWrite(TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+  long cm = pulseIn(ECHO, HIGH) / 58;
+
+  if (cm < {{trigger}} && ocupados < TOTAL) {
+    barrera.write(90);  // open barrier
+    delay({{hold}});
+    barrera.write(0);   // close barrier
+    ocupados++;
+    mostrarCupo();
+    Serial.println(TOTAL - ocupados);
+  }
+  delay(100);
+}`,
+    callouts: [
+      {
+        anchor: `part:garage`,
+        icon: `car`,
+        wide: !0,
+        title: `Mini Parking Lot`,
+        body: `SG90 barrier, entrance sensor and 3 bays with red/green lights.`,
+        x: 280,
+        y: -350,
+        w: 256,
+        side: `bottom`,
+        at: 50,
+        leg: 30,
+        ring: !0,
+      },
+      {
+        anchor: `part:lcd`,
+        icon: `screen`,
+        wide: !0,
+        title: `16×2 LCD Screen`,
+        body: `Shows <b>Espacios: X/3</b> over I²C.`,
+        x: 260,
+        y: 175,
+        w: 245,
+        side: `left`,
+        at: 38,
+        leg: 36,
+        ring: !0,
+      },
+      {
+        anchor: `pin:D9`,
+        icon: `sensor`,
+        wide: !0,
+        title: `Pins 9 · 10 · ~6`,
+        body: `Ultrasonic sensor (9, 10) and SG90 barrier servo (6).`,
+        x: -162,
+        y: -350,
+        w: 262,
+        side: `bottom`,
+        at: 180,
+        leg: 30,
+        ring: !0,
+      },
+      {
+        anchor: `pin:SDA`,
+        icon: `pins`,
+        title: `SDA · SCL (I²C)`,
+        body: `Drives the 16×2 LCD with just two data wires.`,
+        x: -498,
+        y: 130,
+        w: 250,
+        side: `top`,
+        at: 150,
+        leg: 40,
+        ring: !0,
+      },
+    ],
+    sim: `garage`,
+  },
+  {
+    id: `trash`,
+    title: `Smart trash bin`,
+    cardTitle: `18. Smart bin`,
+    thumb: `trash`,
+    heading: `Smart cardboard trash bin`,
+    lede: `A hands-free recycling bin built from cardboard. An HC-SR04 ultrasonic sensor on the front detects your hand or trash within range, and an SG90 micro servo on the side pushes a wire linkage rod to lift the hinged cardboard lid automatically.`,
+    features: [
+      [`sensor`, `Front HC-SR04 ultrasonic sensor measures hand distance`],
+      [`servo`, `Side SG90 servo + metal wire pushrod lifts the cardboard lid`],
+      [`hand`, `Drag the recyclable trash closer or click the bin to test`],
+      [`timer`, `Holds the lid open for <code>delay({{hold}})</code> before closing`],
+    ],
+    pinout: [
+      [`5V · GND`, `Power rail`, `Powers the HC-SR04 sensor and SG90 servo.`, `#d64a3a`],
+      [`D9 · D10`, `Trig · Echo`, `Ultrasonic sensor mounted above the recycling logo.`, `#f0b53a`],
+      [`~D6`, `Servo (lid linkage)`, `0° lid closed, 90° pushrod lifts the lid open.`, `#ef8a3a`],
+    ],
+    example: [
+      `<code>Servo tapa</code> attaches to pin <code>~6</code> and starts at <code>0°</code> with the cardboard flap closed.`,
+      `Every 100 ms, the sketch pulses <code>TRIG</code> on pin 9 and reads <code>ECHO</code> on pin 10 to convert echo time into <code>cm</code>.`,
+      `When <code>cm &lt; {{trigger}}</code>, <code>tapa.write(90)</code> rotates the SG90 horn upward so the metal wire linkage pushes the cardboard lid open.`,
+      `After waiting <code>{{hold}}</code> ms for you to drop the trash inside, <code>tapa.write(0)</code> lowers the lid smoothly back to rest.`,
+    ],
+    specs: [
+      [`Body`, `Corrugated cardboard bin with hinged top flap`],
+      [`Sensor`, `HC-SR04 ultrasonic (2–400 cm) on front face`],
+      [`Actuator`, `SG90 micro servo + metal wire pushrod linkage`],
+      [`Trigger distance`, `< 15 cm (configurable 5–30 cm)`],
+      [`Interaction`, `Drag trash closer, click the bin, or run auto-approach`],
+    ],
+    params: [
+      {
+        key: `gap`,
+        part: `waste`,
+        label: `Trash distance`,
+        type: `range`,
+        min: 4,
+        max: 38,
+        step: 1,
+        value: 26,
+        unit: `cm`,
+      },
+      {
+        key: `toss`,
+        part: `waste`,
+        label: `Throw`,
+        type: `action`,
+        icon: `hand`,
+        value: 0,
+      },
+      {
+        key: `auto`,
+        part: `trash`,
+        label: `Auto approach while running`,
+        type: `toggle`,
+        value: !0,
+      },
+      {
+        key: `trigger`,
+        part: `trash`,
+        label: `Open lid within`,
+        type: `range`,
+        min: 6,
+        max: 25,
+        step: 1,
+        value: 15,
+        unit: `cm`,
+      },
+      {
+        key: `hold`,
+        part: `trash`,
+        label: `Keep lid open for`,
+        type: `range`,
+        min: 600,
+        max: 3e3,
+        step: 200,
+        value: 1600,
+        unit: `ms`,
+      },
+    ],
+    code: `#include <Servo.h>
+
+const int TRIG = 9, ECHO = 10;
+Servo tapa;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+  tapa.attach(6);
+  tapa.write(0);  // lid closed
+}
+
+void loop() {
+  digitalWrite(TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+  long cm = pulseIn(ECHO, HIGH) / 58;
+
+  if (cm < {{trigger}}) {
+    tapa.write(90);  // pushrod opens lid
+    delay({{hold}});
+  } else {
+    tapa.write(0);   // close lid
+  }
+  Serial.println(cm);
+  delay(100);
+}`,
+    callouts: [
+      {
+        anchor: `part:trash`,
+        icon: `servo`,
+        wide: !0,
+        title: `Smart Cardboard Bin`,
+        body: `SG90 servo + wire pushrod lifts the hinged cardboard flap.`,
+        x: 265,
+        y: -345,
+        w: 258,
+        side: `bottom`,
+        at: 52,
+        leg: 30,
+        ring: !0,
+      },
+      {
+        anchor: `part:waste`,
+        icon: `hand`,
+        wide: !0,
+        title: `Recyclable Trash`,
+        body: `Drag closer than <b>{{trigger}} cm</b> to open the lid.`,
+        x: 270,
+        y: 165,
+        w: 245,
+        side: `top`,
+        at: 48,
+        leg: 34,
+        ring: !0,
+      },
+      {
+        anchor: `pin:D9`,
+        icon: `sensor`,
+        wide: !0,
+        title: `Pins 9 · 10 (HC-SR04)`,
+        body: `Triggers the ultrasonic pulse and measures the echo.`,
+        x: -165,
+        y: -348,
+        w: 254,
+        side: `bottom`,
+        at: 175,
+        leg: 30,
+        ring: !0,
+      },
+      {
+        anchor: `pin:D6`,
+        icon: `servo`,
+        title: `Pin ~6 (SG90 Servo)`,
+        body: `Rotates the horn to push the lid linkage rod.`,
+        x: -480,
+        y: -210,
+        w: 244,
+        side: `bottom`,
+        at: 155,
+        leg: 34,
+        ring: !0,
+      },
+    ],
+    sim: `trash`,
+  },
+  {
+    id: `weather`,
+    title: `Weather station`,
+    cardTitle: `19. Weather station`,
+    thumb: `weather`,
+    heading: `Automatic weather station`,
+    lede: `A complete meteorological diorama connected to Arduino. A louvered Stevenson screen houses the BME280 sensor (temperature, humidity and barometric pressure over I²C), the central lattice tower holds an interrupt-driven 3-cup anemometer and analog wind vane, a tipping-bucket rain gauge tracks rainfall, and a 16×2 I²C LCD shows live telemetry.`,
+    features: [
+      [`temp`, `Stevenson screen (BME280) measures Temp (°C), Humidity (%) and Pressure (hPa) over I²C`],
+      [`motor`, `3-cup anemometer (D3 interrupt) and analog wind vane (A0) on the lattice tower`],
+      [`water`, `Tipping-bucket rain gauge (D4) tracks precipitation in millimeters`],
+      [`screen`, `16×2 I²C LCD cycles between temperature/humidity, barometric pressure and wind rumbo`],
+    ],
+    pinout: [
+      [`5V · GND`, `Power rail`, `Powers the BME280, anemometer, rain gauge and LCD display.`, `#d64a3a`],
+      [`SDA · SCL`, `I²C Bus (0x76 & 0x27)`, `Shared 2-wire bus reading the BME280 and updating the 16×2 LCD screen.`, `#3d6fc4`],
+      [`D3 (INT1)`, `Anemometer pulses`, `Hardware interrupt counts cup rotations to compute wind speed (km/h).`, `#3fae6a`],
+      [`D4`, `Rain gauge (bucket)`, `Counts magnetic pulses each time the 0.25 mm bucket tips.`, `#f0b53a`],
+      [`A0`, `Wind vane (direction)`, `Analog voltage divider reading 8 compass bearings (N, NE, E, SE, S, SO, O, NO).`, `#ef8a3a`],
+    ],
+    example: [
+      `<code>Adafruit_BME280 bme</code> reads ambient temperature (<code>°C</code>), relative humidity (<code>%</code>) and barometric pressure (<code>hPa</code>) from the Stevenson shelter over the shared I²C bus.`,
+      `<code>attachInterrupt(digitalPinToInterrupt(3), contarViento, RISING)</code> accurately counts anemometer cup revolutions to calculate wind speed in <code>km/h</code>.`,
+      `<code>analogRead(A0)</code> reads the resistive wind vane divider to identify the wind bearing (<code>{{dir}}</code>).`,
+      `<code>LiquidCrystal_I2C lcd(0x27, 16, 2)</code> displays live telemetry: temperature, humidity, barometric pressure and wind speed.`,
+    ],
+    specs: [
+      [`Shelter`, `Stevenson screen with BME280 (Temp, Hum, Pressure)`],
+      [`Wind tower`, `Lattice mast with 3-cup anemometer & wind vane`],
+      [`Pluviometer`, `Tipping-bucket rain gauge (0.25 mm/tip)`],
+      [`Display`, `16×2 blue backlit LCD over shared I²C bus`],
+      [`Variables`, `Temp (°C), Humidity (%), Pressure (hPa), Wind (km/h, Dir), Rain (mm)`],
+    ],
+    params: [
+      {
+        key: `temp`,
+        part: `weather`,
+        label: `Temperature`,
+        type: `range`,
+        min: 5,
+        max: 42,
+        step: 0.5,
+        value: 23.5,
+        unit: `°C`,
+      },
+      {
+        key: `hum`,
+        part: `weather`,
+        label: `Humidity`,
+        type: `range`,
+        min: 20,
+        max: 95,
+        step: 1,
+        value: 54,
+        unit: `%`,
+      },
+      {
+        key: `press`,
+        part: `weather`,
+        label: `Barometric pressure`,
+        type: `range`,
+        min: 980,
+        max: 1040,
+        step: 1,
+        value: 1013,
+        unit: `hPa`,
+      },
+      {
+        key: `wind`,
+        part: `weather`,
+        label: `Wind speed`,
+        type: `range`,
+        min: 0,
+        max: 65,
+        step: 1,
+        value: 14,
+        unit: `km/h`,
+      },
+      {
+        key: `dir`,
+        part: `weather`,
+        label: `Wind direction`,
+        type: `choice`,
+        value: `NE`,
+        options: [
+          { value: `N`, label: `North (0°)` },
+          { value: `NE`, label: `Northeast (45°)` },
+          { value: `E`, label: `East (90°)` },
+          { value: `SE`, label: `Southeast (135°)` },
+          { value: `S`, label: `South (180°)` },
+          { value: `SO`, label: `Southwest (225°)` },
+          { value: `O`, label: `West (270°)` },
+          { value: `NO`, label: `Northwest (315°)` },
+        ],
+      },
+      {
+        key: `rain`,
+        part: `weather`,
+        label: `Accumulated rainfall`,
+        type: `range`,
+        min: 0,
+        max: 25,
+        step: 0.5,
+        value: 1.5,
+        unit: `mm`,
+      },
+      {
+        key: `gusts`,
+        part: `weather`,
+        label: `Natural wind gusts while running`,
+        type: `toggle`,
+        value: !0,
+      },
+    ],
+    code: `#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <Adafruit_BME280.h>
+
+const int PIN_ANEMO = 3;   // INT1 interrupt
+const int PIN_LLUVIA = 4;  // Pulso balancin
+const int PIN_VELETA = A0; // Rumbo analógico
+
+Adafruit_BME280 bme;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+volatile unsigned long pulsosViento = 0;
+void contarViento() {
+  pulsosViento++;
+}
+
+void setup() {
+  Serial.begin(9600);
+  Wire.begin();
+  bme.begin(0x76);
+  lcd.init();
+  lcd.backlight();
+  pinMode(PIN_ANEMO, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(PIN_ANEMO), contarViento, RISING);
+  pinMode(PIN_LLUVIA, INPUT_PULLUP);
+}
+
+void loop() {
+  float temp = bme.readTemperature();       // {{temp}} °C
+  float hum = bme.readHumidity();          // {{hum}} %
+  float pres = bme.readPressure() / 100.0F; // {{press}} hPa
+
+  int viento = map(pulsosViento, 0, 50, 0, 60); // {{wind}} km/h
+  pulsosViento = 0;
+  int dirRaw = analogRead(PIN_VELETA);          // Rumbo {{dir}}
+
+  lcd.setCursor(0, 0);
+  lcd.print("T:");
+  lcd.print(temp, 1);
+  lcd.print("C H:");
+  lcd.print((int)hum);
+  lcd.print("%");
+
+  lcd.setCursor(0, 1);
+  lcd.print("V:");
+  lcd.print(viento);
+  lcd.print("km/h {{dir}}");
+
+  Serial.print("BME280: ");
+  Serial.print(temp, 1);
+  Serial.print("C | Pres: ");
+  Serial.print(pres, 1);
+  Serial.println(" hPa");
+
+  delay(500);
+}`,
+    callouts: [
+      {
+        anchor: `part:weather`,
+        icon: `temp`,
+        wide: !0,
+        title: `Weather Station Diorama`,
+        body: `BME280 Stevenson screen, spinning anemometer tower and rain gauge.`,
+        x: 280,
+        y: -350,
+        w: 262,
+        side: `bottom`,
+        at: 50,
+        leg: 30,
+        ring: !0,
+      },
+      {
+        anchor: `part:lcd`,
+        icon: `screen`,
+        wide: !0,
+        title: `16×2 LCD Telemetry`,
+        body: `Displays <b>T: {{temp}}C H: {{hum}}%</b>, pressure and wind speed.`,
+        x: 260,
+        y: 175,
+        w: 256,
+        side: `left`,
+        at: 38,
+        leg: 36,
+        ring: !0,
+      },
+      {
+        anchor: `pin:D3`,
+        icon: `temp`,
+        wide: !0,
+        title: `Pins D3 · D4 · A0`,
+        body: `Anemometer pulses (D3 INT), rain gauge (D4) and wind vane (A0).`,
+        x: -162,
+        y: -350,
+        w: 258,
+        side: `bottom`,
+        at: 180,
+        leg: 30,
+        ring: !0,
+      },
+      {
+        anchor: `pin:SDA`,
+        icon: `pins`,
+        title: `SDA · SCL (I²C)`,
+        body: `Shared I²C bus reading BME280 (0x76) and driving LCD (0x27).`,
+        x: -498,
+        y: 130,
+        w: 252,
+        side: `top`,
+        at: 150,
+        leg: 40,
+        ring: !0,
+      },
+    ],
+    sim: `weather`,
+  },
 ];
 function _(e) {
   return Object.fromEntries((e.params ?? []).map((e) => [e.key, e.value]));

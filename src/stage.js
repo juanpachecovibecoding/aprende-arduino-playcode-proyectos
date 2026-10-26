@@ -162,6 +162,16 @@ import {
   z as dn,
   zr as J,
   zt as fn,
+  zu,
+  Pu,
+  Fu,
+  Iu,
+  Lu,
+  Bu,
+  Vu,
+  Hu,
+  Uu,
+  Wu,
 } from "./kit.js";
 function pn() {
   let e = null,
@@ -14387,7 +14397,7 @@ var Ma = {
         (this.drag = null),
         (this.anim = null),
         (this.fit = 1),
-        (this.bounds = { minX: -90, maxX: 150, minZ: -110, maxZ: 90 }),
+        (this.bounds = { minX: -90, maxX: 195, minZ: -110, maxZ: 90 }),
         e.addEventListener(`pointerdown`, (e) => this.down(e)),
         e.addEventListener(`pointermove`, (e) => this.move(e)),
         e.addEventListener(`pointerup`, (e) => this.up(e)),
@@ -15301,6 +15311,268 @@ var $o = {
         $(`w-d2`, `D2`, Z(23, `e`), Q.green, { arch: 34, leanB: 0 }),
       ],
     },
+    weather: {
+      parts: [
+        Za,
+        {
+          id: `lcd`,
+          build: Pu,
+          at: new q(64, Ja, 12),
+          apply: (e, t) =>
+            Fu(e, {
+              line1: `T:${Number(t.temp ?? 23.5).toFixed(1)}C H:${t.hum ?? 54}%`,
+              line2: `V:${t.wind ?? 12}km/h ${t.dir ?? `NE`} R:${t.rain ?? 0}m`,
+              active: !1,
+            }),
+        },
+        {
+          id: `weather`,
+          build: Uu,
+          at: new q(140, Ja, -20),
+          apply: (e, t) => {
+            let r = {
+              N: 0,
+              NE: 0.78,
+              E: 1.57,
+              SE: 2.35,
+              S: 3.14,
+              SO: 3.92,
+              O: 4.71,
+              NO: 5.5,
+            }[t.dir ?? `NE`] ?? 0.78;
+            Wu(e, { cupAngle: 0.6, vaneAngle: r, wind: t.wind ?? 12, dir: t.dir ?? `NE` });
+          },
+          interact: { type: `tap`, param: `wind` },
+        },
+        $(`w-5v`, `5V`, Z(6, `a`), Q.red, { arch: 20 }),
+        $(`w-gnd`, `GND`, Z(8, `a`), Q.navy, { arch: 18 }),
+        $(
+          `w-lcd-gnd`,
+          new q(64, Ja, 12).add(zu.lcdPins[0]),
+          Z(8, `e`),
+          Q.navy,
+          { arch: 14, endA: !1, signal: { net: `GND`, dir: -1 } },
+        ),
+        $(
+          `w-lcd-vcc`,
+          new q(64, Ja, 12).add(zu.lcdPins[1]),
+          Z(6, `e`),
+          Q.red,
+          { arch: 16, endA: !1, signal: { a: `5V` } },
+        ),
+        $(
+          `w-lcd-sda`,
+          new q(64, Ja, 12).add(zu.lcdPins[2]),
+          `SDA`,
+          Q.purple,
+          { arch: 22, endA: !1 },
+        ),
+        $(
+          `w-lcd-scl`,
+          new q(64, Ja, 12).add(zu.lcdPins[3]),
+          `SCL`,
+          Q.blue,
+          { arch: 25, endA: !1 },
+        ),
+        $(
+          `w-w-5v`,
+          Z(6, `c`),
+          new q(140, Ja, -20).add(zu.weatherPins[0]),
+          Q.red,
+          { arch: 16, endB: !1, signal: { a: `5V` } },
+        ),
+        $(
+          `w-w-gnd`,
+          Z(8, `c`),
+          new q(140, Ja, -20).add(zu.weatherPins[1]),
+          Q.navy,
+          { arch: 14, endB: !1, signal: { net: `GND`, dir: -1 } },
+        ),
+        $(
+          `w-w-sda`,
+          `SDA`,
+          new q(140, Ja, -20).add(zu.weatherPins[2]),
+          Q.purple,
+          { arch: 26, endB: !1 },
+        ),
+        $(
+          `w-w-scl`,
+          `SCL`,
+          new q(140, Ja, -20).add(zu.weatherPins[3]),
+          Q.blue,
+          { arch: 28, endB: !1 },
+        ),
+        $(
+          `w-w-d3`,
+          `D3`,
+          new q(140, Ja, -20).add(zu.weatherPins[4]),
+          Q.green,
+          { arch: 22, endB: !1 },
+        ),
+        $(
+          `w-w-d4`,
+          `D4`,
+          new q(140, Ja, -20).add(zu.weatherPins[5]),
+          Q.yellow,
+          { arch: 24, endB: !1 },
+        ),
+        $(
+          `w-w-a0`,
+          `A0`,
+          new q(140, Ja, -20).add(zu.weatherPins[6]),
+          Q.orange,
+          { arch: 27, endB: !1 },
+        ),
+      ],
+    },
+    trash: {
+      parts: [
+        Za,
+        {
+          id: `trash`,
+          build: Bu,
+          at: new q(116, Ja, -24),
+          apply: (e, t) =>
+            Vu(e, {
+              lidAngle: t.gap < t.trigger ? 68 : 0,
+              near: t.gap < t.trigger,
+            }),
+          interact: { type: `tap`, param: `gap` },
+        },
+        {
+          id: `waste`,
+          build: Hu,
+          at: (e) => new q(116, Ja, -2 + e.gap * 0.75),
+          interact: {
+            type: `slide`,
+            param: `gap`,
+            toParam: (e) => (e.z - -2) / 0.75,
+          },
+        },
+        $(`w-5v`, `5V`, Z(6, `a`), Q.red, { arch: 20 }),
+        $(`w-gnd`, `GND`, Z(8, `a`), Q.navy, { arch: 18 }),
+        $(
+          `w-t-5v`,
+          Z(6, `d`),
+          new q(116, Ja, -24).add(zu.trashPins[0]),
+          Q.red,
+          { arch: 16, endB: !1, signal: { a: `5V` } },
+        ),
+        $(
+          `w-t-gnd`,
+          Z(8, `d`),
+          new q(116, Ja, -24).add(zu.trashPins[1]),
+          Q.navy,
+          { arch: 14, endB: !1, signal: { net: `GND`, dir: -1 } },
+        ),
+        $(
+          `w-d9`,
+          `D9`,
+          new q(116, Ja, -24).add(zu.trashPins[2]),
+          Q.yellow,
+          { arch: 22, endB: !1 },
+        ),
+        $(
+          `w-d10`,
+          `D10`,
+          new q(116, Ja, -24).add(zu.trashPins[3]),
+          Q.green,
+          { arch: 24, endB: !1 },
+        ),
+        $(
+          `w-d6`,
+          `D6`,
+          new q(116, Ja, -24).add(zu.trashPins[4]),
+          Q.orange,
+          { arch: 26, endB: !1 },
+        ),
+      ],
+    },
+    garage: {
+      parts: [
+        Za,
+        {
+          id: `lcd`,
+          build: Pu,
+          at: new q(64, Ja, 10),
+          apply: (e, t) =>
+            Fu(e, { free: 3 - t.cars, total: 3, open: !1, active: !1 }),
+        },
+        {
+          id: `garage`,
+          build: Iu,
+          at: new q(142, Ja, -20),
+          apply: (e, t) =>
+            Lu(e, { cars: t.cars, gateAngle: 0, runner: null }),
+          interact: { type: `tap`, param: `cars` },
+        },
+        $(`w-5v`, `5V`, Z(6, `a`), Q.red, { arch: 20 }),
+        $(`w-gnd`, `GND`, Z(8, `a`), Q.navy, { arch: 18 }),
+        $(
+          `w-lcd-gnd`,
+          new q(64, Ja, 10).add(zu.lcdPins[0]),
+          Z(8, `e`),
+          Q.navy,
+          { arch: 14, endA: !1, signal: { net: `GND`, dir: -1 } },
+        ),
+        $(
+          `w-lcd-vcc`,
+          new q(64, Ja, 10).add(zu.lcdPins[1]),
+          Z(6, `e`),
+          Q.red,
+          { arch: 16, endA: !1, signal: { a: `5V` } },
+        ),
+        $(
+          `w-lcd-sda`,
+          new q(64, Ja, 10).add(zu.lcdPins[2]),
+          `SDA`,
+          Q.purple,
+          { arch: 22, endA: !1 },
+        ),
+        $(
+          `w-lcd-scl`,
+          new q(64, Ja, 10).add(zu.lcdPins[3]),
+          `SCL`,
+          Q.blue,
+          { arch: 25, endA: !1 },
+        ),
+        $(
+          `w-g-5v`,
+          Z(6, `c`),
+          new q(142, Ja, -20).add(zu.garagePins[0]),
+          Q.red,
+          { arch: 16, endB: !1, signal: { a: `5V` } },
+        ),
+        $(
+          `w-g-gnd`,
+          Z(8, `c`),
+          new q(142, Ja, -20).add(zu.garagePins[1]),
+          Q.navy,
+          { arch: 14, endB: !1, signal: { net: `GND`, dir: -1 } },
+        ),
+        $(
+          `w-d9`,
+          `D9`,
+          new q(142, Ja, -20).add(zu.garagePins[2]),
+          Q.yellow,
+          { arch: 24, endB: !1 },
+        ),
+        $(
+          `w-d10`,
+          `D10`,
+          new q(142, Ja, -20).add(zu.garagePins[3]),
+          Q.green,
+          { arch: 26, endB: !1 },
+        ),
+        $(
+          `w-d6`,
+          `D6`,
+          new q(142, Ja, -20).add(zu.garagePins[4]),
+          Q.orange,
+          { arch: 28, endB: !1 },
+        ),
+      ],
+    },
   },
   es = {
     board: {
@@ -15332,6 +15604,9 @@ var $o = {
     plant: { target: [40, 0, -32], zoom: 4.9, frame: [-6, 2, 180, 100] },
     piano: { target: [32, 0, -43], zoom: 5.3, frame: [-6, 2, 180, 92] },
     force: { target: [39, 0, -39], zoom: 4.7, frame: [6.7, -12, 208.5, 113.8] },
+    garage: { target: [64, 0, -14], zoom: 4.3, frame: [8, -4, 234, 118] },
+    trash: { target: [54, 4, -18], zoom: 4.7, frame: [4, -4, 198, 108] },
+    weather: { target: [64, 2, -14], zoom: 4.3, frame: [8, -4, 234, 118] },
   };
 function ts(e, t = {}) {
   return ($o[e] ?? $o.board).parts.map((e) => ({
@@ -16547,6 +16822,460 @@ function ms(t, a) {
       },
     };
   }
+  if (t === `weather`) {
+    let t = b(`weather`),
+      n = b(`lcd`),
+      r = 0.6,
+      i = 0,
+      o = [
+        [`float t = bme.readTemperature()`, 0, 200],
+        [`float h = bme.readHumidity()`, 0, 200],
+        [`float p = bme.readPressure() / 100.0F`, 0, 200],
+        [`int v = map(pulsosViento, 0, 50, 0, 60)`, 0, 220],
+        [`int dir = analogRead(PIN_VELETA)`, 0, 200],
+        [`lcd.setCursor(0, 0)`, 0, 160],
+        [`lcd.print(...)`, 0, 180],
+        [`delay(500)`, 0, 240],
+      ],
+      dirs = {
+        N: 0,
+        NE: 0.78,
+        E: 1.57,
+        SE: 2.35,
+        S: 3.14,
+        SO: 3.92,
+        O: 4.71,
+        NO: 5.5,
+      };
+    return (
+      x.play(o, _, {
+        loop: !0,
+        intro: [
+          [`Wire.begin()`, 0, 240],
+          [`bme.begin(0x76)`, 0, 280],
+          [`attachInterrupt(1, contarViento, RISING)`, 0, 260],
+          [`lcd.init()`, 0, 240],
+          [`lcd.backlight()`, 0, 220],
+        ],
+      }),
+      f(
+        `BME280: ${Number(m.temp ?? 23.5).toFixed(1)}°C · ${m.hum ?? 54}% · ${Number(m.press ?? 1013.2).toFixed(1)} hPa | Viento: ${m.wind ?? 12} km/h (${m.dir ?? `NE`}) | Lluvia: ${m.rain ?? 0} mm`,
+      ),
+      {
+        shadows: !0,
+        update(a, o) {
+          let s = m.gusts ? Math.sin(a / 1100) * 3.5 : 0,
+            c = m.gusts ? Math.cos(a / 1700) * 0.3 : 0,
+            pG = m.gusts ? Math.sin(a / 2300) * 0.8 : 0,
+            l = Math.max(0, Math.round((m.wind ?? 12) + s)),
+            u = (Number(m.temp ?? 23.5) + c).toFixed(1),
+            d = Math.round(m.hum ?? 54),
+            pressVal = (Number(m.press ?? 1013.2) + pG).toFixed(1),
+            rainVal = Number(m.rain ?? 0).toFixed(1),
+            dirStr = m.dir ?? `NE`,
+            baseDir = dirs[dirStr] ?? 0.78,
+            h = baseDir + (m.gusts ? Math.sin(a / 850) * 0.18 : 0);
+          ((r += (Math.max(0.5, l) * o) / 320),
+            t && Wu(t, { cupAngle: r, vaneAngle: h, wind: l, dir: dirStr }));
+          let alt = Math.floor(a / 3200) % 2 === 0,
+            line1 = alt ? `T:${u}C  H:${d}%` : `P:${pressVal}hPa`,
+            line2 = `V:${l}km/h ${dirStr} ${rainVal}mm`;
+          n &&
+            Fu(n, {
+              line1: line1.padEnd(16, ` `),
+              line2: line2.padEnd(16, ` `),
+              active: !0,
+            });
+          if (a - i > 2400) {
+            i = a;
+            f(`BME280: ${u}°C · ${d}% · ${pressVal} hPa | Viento: ${l} km/h (${dirStr}) | Lluvia: ${rainVal} mm`);
+          }
+          let dirFrac = ((baseDir / (2 * Math.PI)) % 1),
+            windPulse = (Math.sin(r * 4) > 0.5) ? 1 : 0,
+            rainPulse = (+rainVal > 0 && Math.sin(a / 1500) > 0.7) ? 1 : 0;
+          return (
+            y(`D3`, windPulse, `pulse`, `${l} km/h`),
+            y(`D4`, rainPulse, `pulse`, `${rainVal} mm`),
+            y(`A0`, dirFrac, `analog`, `${(dirFrac * 5).toFixed(1)} V (${dirStr})`),
+            y(`SDA`, 0.5, `pulse`, `BME280+LCD`),
+            y(`SCL`, 0.5, `pulse`, e(`I²C CLOCK`)),
+            t &&
+              p({
+                text: `${u}°C · ${d}% · ${l} km/h ${dirStr}`,
+                position: t.position.clone().add(new q(2, 46, -8)),
+              }),
+            x.update(a),
+            !0
+          );
+        },
+        stop() {
+          (x.clear(),
+            p(null),
+            t && Wu(t, { cupAngle: 0.6, vaneAngle: 0.78, wind: m.wind ?? 12, dir: m.dir ?? `NE` }),
+            n &&
+              Fu(n, {
+                line1: `T:${Number(m.temp ?? 23.5).toFixed(1)}C H:${m.hum ?? 54}%`,
+                line2: `V:${m.wind ?? 12}km/h ${m.dir ?? `NE`} R:${m.rain ?? 0}m`,
+                active: !1,
+              }));
+        },
+      }
+    );
+  }
+  if (t === `trash`) {
+    let t = b(`trash`),
+      n = b(`waste`),
+      r = new ss(l),
+      i = m.gap < m.trigger ? 68 : 0,
+      o = m.gap,
+      s = 0,
+      c = m.gap < m.trigger,
+      u = c ? _ + m.hold : 0,
+      d = 0,
+      v = [
+        [`digitalWrite(TRIG, HIGH)`, 0, 140],
+        [`long cm = pulseIn(ECHO, HIGH) / 58`, 0, 220],
+        [`if (cm <`, 0, 180],
+        [`delay(100)`, 0, 180],
+      ];
+    return (
+      x.play(v, _, {
+        loop: !0,
+        intro: [
+          [`tapa.attach(6)`, 0, 260],
+          [`tapa.write(0)`, 0, 260],
+        ],
+      }),
+      f(
+        e(
+          c
+            ? `{cm} cm < {lim} cm → Lid OPEN (90°)`
+            : `{cm} cm · Drag trash closer or click bin`,
+          { cm: Math.round(m.gap), lim: m.trigger },
+        ),
+      ),
+      {
+        shadows: !0,
+        update(l, C) {
+          if (n?.userData?.justTossed) {
+            ((n.userData.justTossed = !1),
+              (o = m.gap),
+              (s = l + 3500),
+              (c = !1),
+              (i = 0),
+              (u = 0),
+              f(e(`Trash thrown inside → Lid CLOSED (0°)`)));
+          }
+          if (n?.userData?.tossing) {
+            ((s = l + 3500),
+              (i = t?.userData?.trash?.state?.lidAngle ?? 68),
+              (c = i > 20));
+            let r = Math.round(m.gap);
+            return (
+              t &&
+                p({
+                  text: `${r} cm · ${c ? e(`OPEN (90°)`) : e(`CLOSED (0°)`)}`,
+                  position: t.position.clone().add(new q(0, 52, 8)),
+                }),
+              x.update(l),
+              !0
+            );
+          }
+          let w = m.gap;
+          if (m.gap !== o) ((o = m.gap), (s = l + 3200));
+          else if (m.auto && l > s) {
+            let e = ((l - _) % 5600) / 5600;
+            w =
+              e < 0.25
+                ? 28 - (e / 0.25) * 20
+                : e < 0.62
+                  ? 8
+                  : e < 0.82
+                    ? 8 + ((e - 0.62) / 0.2) * 20
+                    : 28;
+            n && (n.position.z = -2 + w * 0.75);
+          }
+          let T = Math.round(w),
+            E = T < m.trigger;
+          if (E) {
+            u = Math.max(u, l + m.hold);
+            if (!c) {
+              c = !0;
+              f(
+                e(`{cm} cm < {lim} cm → Lid OPEN (90°)`, {
+                  cm: T,
+                  lim: m.trigger,
+                }),
+              );
+              x.play(v, l, {
+                loop: !0,
+                intro: [
+                  [`tapa.write(90)`, 0, 360],
+                  [`delay(`, 0, 360],
+                ],
+              });
+            }
+          } else if (c && l >= u) {
+            c = !1;
+            f(e(`Lid CLOSED (0°) · {cm} cm`, { cm: T }));
+            x.play(v, l, {
+              loop: !0,
+              intro: [
+                [`tapa.write(0)`, 0, 280],
+                [`Serial.println(cm)`, 0, 240],
+              ],
+            });
+          }
+          let D = c ? 68 : 0,
+            O = Math.min(1, C / 110);
+          i += (D - i) * O;
+          t && Vu(t, { lidAngle: i, near: c });
+          let k = t?.userData?.sensor;
+          return (
+            k &&
+              l - d > 260 &&
+              ((d = l),
+              k.updateWorldMatrix(!0, !1),
+              r.emit(
+                new q(0, 12, 0).applyMatrix4(k.matrixWorld),
+                l,
+                c ? `#f0a53a` : `#1aa3a1`,
+              )),
+            r.update(l),
+            y(`D9`, +((l - d) < 70), `pulse`, (l - d) < 70 ? e(`PULSE`) : `LOW`),
+            y(
+              `D10`,
+              +((l - d) >= 70 && (l - d) < 180),
+              `in`,
+              `${T} cm`,
+            ),
+            y(
+              `D6`,
+              0.5,
+              `servo`,
+              `${(0.5 + ((c ? 90 : 0) / 180) * 1.9).toFixed(1)} ms`,
+            ),
+            t &&
+              p({
+                text: `${T} cm · ${c ? e(`OPEN (90°)`) : e(`CLOSED (0°)`)}`,
+                position: t.position.clone().add(new q(0, 52, 8)),
+              }),
+            x.update(l),
+            !0
+          );
+        },
+        stop() {
+          (x.clear(),
+            r.dispose(),
+            p(null),
+            n && (n.position.z = -2 + m.gap * 0.75),
+            t &&
+              Vu(t, {
+                lidAngle: m.gap < m.trigger ? 68 : 0,
+                near: m.gap < m.trigger,
+              }));
+        },
+      }
+    );
+  }
+  if (t === `garage`) {
+    let t = b(`garage`),
+      n = b(`lcd`),
+      r = new ss(l),
+      i = [0, 1, 2].map((e) => (e < m.cars ? 1 : 0)),
+      o = m.cars,
+      s = 0,
+      c = 28,
+      u = null,
+      d = _ + 1200,
+      h = 0,
+      v = [
+        [`digitalWrite(TRIG, HIGH)`, 0, 140],
+        [`long cm = pulseIn(ECHO, HIGH) / 58`, 0, 220],
+        [`if (cm <`, 0, 180],
+        [`delay(100)`, 0, 180],
+      ],
+      S = () => i.filter(Boolean).length;
+    return (
+      x.play(v, _, {
+        loop: !0,
+        intro: [
+          [`barrera.attach(6)`, 0, 260],
+          [`lcd.init()`, 0, 260],
+          [`mostrarCupo()`, 0, 260],
+        ],
+      }),
+      n && Fu(n, { free: 3 - S(), total: 3, open: !1, active: !0 }),
+      f(e(`Espacios: {free}/3 · Click cars to enter or exit`, { free: 3 - S() })),
+      {
+        shadows: !0,
+        update(l, C) {
+          if (m.cars !== o && !u) {
+            let e = m.cars,
+              t = S();
+            o = e;
+            if (e > t) {
+              let t = i.indexOf(0);
+              t >= 0 && (u = { kind: `enter`, bay: t, t0: l });
+            } else if (e < t) {
+              let t = i.lastIndexOf(1);
+              t >= 0 &&
+                ((i[t] = 0),
+                (u = { kind: `exit`, bay: t, t0: l }),
+                f(e(`Vehicle leaving · Espacios: {free}/3`, { free: 3 - S() })));
+            }
+          }
+          if (!u && m.traffic && l >= d) {
+            let e = S();
+            if (e < 3) {
+              let e = i.indexOf(0);
+              e >= 0 && (u = { kind: `enter`, bay: e, t0: l });
+            } else {
+              let e = i.lastIndexOf(1);
+              e >= 0 &&
+                ((i[e] = 0),
+                (o = S()),
+                g(`cars`, o),
+                (u = { kind: `exit`, bay: e, t0: l }),
+                f(`Espacios: ${3 - o}/3`));
+            }
+          }
+          let w = null,
+            T = 0;
+          if (((c = 28), u)) {
+            let n = l - u.t0,
+              r = [-24, 0, 24][u.bay] ?? 0;
+            if (u.kind === `enter`) {
+              let a = Math.max(600, m.hold);
+              if (n < 750) {
+                let e = n / 750;
+                ((w = {
+                  x: -19,
+                  z: 35 - e * 9,
+                  rotY: 90,
+                  wheelRot: e * 6,
+                }),
+                  (c = Math.round(26 - e * 18)));
+              } else if (n < 1200) {
+                let t = (n - 750) / 450;
+                ((w = { x: -19, z: 26, rotY: 90, wheelRot: 6 }),
+                  (c = Math.min(8, m.trigger - 2)),
+                  (T = 90),
+                  !u.loggedOpen &&
+                    ((u.loggedOpen = !0),
+                    f(
+                      e(`{cm} cm < {lim} cm → Gate OPEN (90°)`, {
+                        cm: c,
+                        lim: m.trigger,
+                      }),
+                    ),
+                    x.play(v, l, {
+                      loop: !0,
+                      intro: [
+                        [`barrera.write(90)`, 0, 380],
+                        [`delay(`, 0, 380],
+                      ],
+                    })));
+              } else if (n < 1200 + a) {
+                let e = (n - 1200) / a,
+                  t = e < 0.5 ? 2 * e * e : 1 - (-2 * e + 2) ** 2 / 2;
+                ((w = {
+                  x: -19 + (r - -19) * Math.max(0, (t - 0.35) / 0.65),
+                  z: 26 - t * 47,
+                  rotY: 90,
+                  wheelRot: 6 + t * 14,
+                }),
+                  (c = 14),
+                  (T = 90));
+              } else {
+                ((i[u.bay] = 1),
+                  (o = S()),
+                  g(`cars`, o),
+                  (u = null),
+                  (d = l + 2400),
+                  (T = 0),
+                  f(`Espacios: ${3 - o}/3`),
+                  x.play(v, l, {
+                    loop: !0,
+                    intro: [
+                      [`barrera.write(0)`, 0, 260],
+                      [`ocupados++`, 0, 220],
+                      [`mostrarCupo()`, 0, 260],
+                      [`Serial.println(TOTAL - ocupados)`, 0, 240],
+                    ],
+                  }));
+              }
+            } else if (u.kind === `exit`) {
+              if (n < 1200) {
+                let e = n / 1200,
+                  t = e < 0.5 ? 2 * e * e : 1 - (-2 * e + 2) ** 2 / 2;
+                w = {
+                  x: r + (19 - r) * Math.min(1, t * 1.6),
+                  z: -21 + t * 56,
+                  rotY: -90,
+                  wheelRot: -t * 14,
+                };
+              } else {
+                ((o = S()),
+                  g(`cars`, o),
+                  (u = null),
+                  (d = l + 1800),
+                  f(`Espacios: ${3 - o}/3`));
+              }
+            }
+          }
+          let E = Math.min(1, C / 110);
+          s += (T - s) * E;
+          let D = Math.round(s) > 25,
+            O = 3 - S();
+          (t && Lu(t, { occupied: i, gateAngle: s, runner: w }),
+            n && Fu(n, { free: O, total: 3, open: D, active: !0 }));
+          let k = t?.userData?.sensor;
+          return (
+            k &&
+              l - h > 280 &&
+              ((h = l),
+              k.updateWorldMatrix(!0, !1),
+              r.emit(
+                new q(0, 12, 0).applyMatrix4(k.matrixWorld),
+                l,
+                c < m.trigger ? `#f0a53a` : `#1aa3a1`,
+              )),
+            r.update(l),
+            y(`D9`, +((l - h) < 70), `pulse`, (l - h) < 70 ? e(`PULSE`) : `LOW`),
+            y(
+              `D10`,
+              +((l - h) >= 70 && (l - h) < 180),
+              `in`,
+              `${c} cm`,
+            ),
+            y(
+              `D6`,
+              0.5,
+              `servo`,
+              `${(0.5 + (Math.round(s) / 180) * 1.9).toFixed(1)} ms`,
+            ),
+            y(`SDA`, 0.5, `pulse`, e(`I²C DATA`)),
+            y(`SCL`, 0.5, `pulse`, e(`I²C CLOCK`)),
+            t &&
+              p({
+                text: `Espacios: ${O}/3 · ${c} cm`,
+                position: t.position.clone().add(new q(-14, 28, 12)),
+              }),
+            x.update(l),
+            !0
+          );
+        },
+        stop() {
+          (x.clear(),
+            r.dispose(),
+            p(null),
+            t && Lu(t, { cars: m.cars, gateAngle: 0, runner: null }),
+            n && Fu(n, { free: 3 - m.cars, total: 3, open: !1, active: !1 }));
+        },
+      }
+    );
+  }
   return null;
 }
 function hs(e) {
@@ -17207,7 +17936,61 @@ var Ws = class {
       n.spec = t;
       let r = n.group;
       (t.at && !n.moving && ((r.position.x = t.at.x), (r.position.z = t.at.z)),
-        t.apply?.(r, e));
+        !n.moving && t.apply?.(r, e));
+    if (this.lessonId === `trash` && e.toss && e.toss !== this.lastToss) {
+      this.lastToss = e.toss;
+      let t = this.parts.get(`trash`),
+        n = this.parts.get(`waste`);
+      if (t && n && !n.moving) {
+        ((t.moving = !0),
+          (n.moving = !0),
+          (n.group.userData.tossing = !0));
+        let r = t.group,
+          i = n.group,
+          a = i.position.z,
+          o = r.userData?.trash?.state?.lidAngle ?? 0;
+        this.tweens.add({
+          duration: 1750,
+          easing: Ma.linear,
+          onUpdate: (e) => {
+            if (e < 0.16) {
+              let t = e / 0.16;
+              Vu(r, { lidAngle: o + (72 - o) * t, near: !0 });
+            } else if (e < 0.6) {
+              let t = (e - 0.16) / 0.44,
+                n = Ma.inOutCubic(t);
+              (Vu(r, { lidAngle: 72, near: !0 }),
+                (i.position.z = a + (-24 - a) * n),
+                (i.position.y =
+                  Ja + Math.sin(t * Math.PI) * 52 + (1 - Math.cos(t * Math.PI)) * 5),
+                (i.rotation.x = -t * Math.PI * 1.35),
+                i.scale.setScalar(1 - t * 0.35));
+            } else if (e < 0.88) {
+              let t = (e - 0.6) / 0.28;
+              ((i.visible = !1),
+                Vu(r, { lidAngle: 72 * (1 - Ma.inOutCubic(t)), near: !1 }));
+            } else {
+              ((i.visible = !1), Vu(r, { lidAngle: 0, near: !1 }));
+            }
+            ((this.shadowDirty = !0), (this.dirty = !0));
+          },
+          onComplete: () => {
+            ((i.position.set(116, Ja, -2 + 26 * 0.75)),
+              (i.rotation.x = 0),
+              i.scale.setScalar(1),
+              (i.visible = !0),
+              Vu(r, { lidAngle: 0, near: !1 }),
+              (t.moving = !1),
+              (n.moving = !1),
+              (i.userData.tossing = !1),
+              (i.userData.justTossed = !0),
+              this.hooks.onParam?.(`gap`, 26),
+              (this.shadowDirty = !0),
+              (this.dirty = !0));
+          },
+        });
+      }
+    }
     }
     ((this.shadowDirty = !0),
       (this.dirty = !0),

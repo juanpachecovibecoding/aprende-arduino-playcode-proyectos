@@ -33,6 +33,12 @@ import {
   v as j,
   w as M,
   y as N,
+  Iu,
+  Lu,
+  Bu,
+  Vu,
+  Uu,
+  Wu,
 } from "./kit.js";
 var P = Math.PI / 180;
 function F(e, t, n = 0.35) {
@@ -172,6 +178,27 @@ function Q({ renderer: e, board: t }) {
     shadow: [86, 70, 0],
   };
 }
+function ne() {
+  let e = Iu();
+  return (
+    Lu(e, { cars: 2, gateAngle: 35 }),
+    { group: e, az: 24, el: 32, pad: 1.06, shadow: [90, 82, 0] }
+  );
+}
+function re() {
+  let e = Bu();
+  return (
+    Vu(e, { lidAngle: 52 }),
+    { group: e, az: -26, el: 22, pad: 1.08, shadow: [54, 44, -2] }
+  );
+}
+function ie() {
+  let e = Uu();
+  return (
+    Wu(e, { cupAngle: 0.7, vaneAngle: 0.45, wind: 12 }),
+    { group: e, az: 24, el: 28, pad: 1.06, shadow: [90, 82, 0] }
+  );
+}
 var $ = {
   board: Q,
   led: I,
@@ -189,6 +216,9 @@ var $ = {
   motor: R,
   servo: U,
   gears: z,
+  garage: ne,
+  trash: re,
+  weather: ie,
 };
 function ee(e, t, n, r, i, a) {
   (e.position.set(

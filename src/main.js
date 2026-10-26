@@ -795,6 +795,9 @@ var w = 92,
     wheel: 96,
     plant: 76,
     piano: 96,
+    garage: 98,
+    trash: 94,
+    weather: 98,
   },
   ke = {
     board: 316,
@@ -812,6 +815,9 @@ var w = 92,
     stepper: 290,
     plant: 268,
     project: 286,
+    garage: 298,
+    trash: 288,
+    weather: 304,
   },
   Ae = (e) =>
     `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${e}" /></svg>`,
@@ -1224,6 +1230,11 @@ var Ne = class {
     sensor: [`#3a56a0`, `#22325e`],
     motor: [`#cfc9bf`, `#7c766d`],
     lights: [`#2c3242`, `#141a2c`],
+    garage: [`#cfa36c`, `#7a5530`],
+    lcd: [`#247a48`, `#15492b`],
+    trash: [`#c89b62`, `#7a5530`],
+    waste: [`#3fae6a`, `#226b3e`],
+    weather: [`#598e3b`, `#2d5e23`],
   },
   Ie = [`#8e8a84`, `#4f535b`],
   Le = 176,
@@ -1502,6 +1513,13 @@ var We = class {
       let r = document.createElement(`div`);
       ((r.className = `insp-row is-${t.type}`), (r.dataset.key = t.key));
       let i = `insp-${t.key}`;
+      if (t.type === `action`) {
+        r.innerHTML = `<button class="insp-focus insp-action" type="button" style="width:100%;justify-content:center;padding:9px 14px;font-weight:700;background:#1aa3a1;color:#fff;border-color:#158583;cursor:pointer">${b(t.icon ?? `hand`)}<span>${t.label}</span></button>`;
+        r.querySelector(`button`).addEventListener(`click`, () =>
+          this.onParam?.(t.key, Date.now()),
+        );
+        return r;
+      }
       if (t.type === `range`) {
         r.innerHTML = `
         <label for="${i}"><span>${t.label}</span><output></output></label>
@@ -1988,6 +2006,89 @@ var We = class {
             [`R`, `D4`],
             [`Y`, `D3`],
             [`G`, `D2`],
+            [`GND`, null],
+          ],
+        },
+      ],
+    },
+    weather: {
+      pins: [`5V`, `D3`, `D4`, `A0`, `GND`, `SDA`, `SCL`],
+      blocks: [
+        {
+          part: `weather`,
+          title: `BME280 (I2C)`,
+          pins: [
+            [`VCC`, `5V`],
+            [`SDA`, `SDA`],
+            [`SCL`, `SCL`],
+            [`GND`, `GND`],
+          ],
+        },
+        {
+          part: `weather`,
+          title: e(`WIND & RAIN`),
+          pins: [
+            [`SPEED`, `D3`],
+            [`DIR`, `A0`],
+            [`RAIN`, `D4`],
+            [`GND`, null],
+          ],
+        },
+        {
+          part: `lcd`,
+          title: `LCD 16x2`,
+          pins: [
+            [`SDA`, `SDA`],
+            [`SCL`, `SCL`],
+            [`GND`, null],
+          ],
+        },
+      ],
+    },
+    trash: {
+      pins: [`5V`, `D9`, `D10`, `D6`, `GND`],
+      blocks: [
+        {
+          part: `trash`,
+          title: `HC-SR04`,
+          pins: [
+            [`VCC`, `5V`],
+            [`TRIG`, `D9`],
+            [`ECHO`, `D10`],
+            [`GND`, `GND`],
+          ],
+        },
+        {
+          part: `trash`,
+          title: e(`SERVO`),
+          pins: [
+            [`SIG`, `D6`],
+            [`+`, null],
+            [`−`, null],
+          ],
+        },
+      ],
+    },
+    garage: {
+      pins: [`5V`, `D9`, `D10`, `D6`, `GND`, `SDA`, `SCL`],
+      blocks: [
+        {
+          part: `garage`,
+          title: e(`PARKING GATE`),
+          pins: [
+            [`VCC`, `5V`],
+            [`TRIG`, `D9`],
+            [`ECHO`, `D10`],
+            [`SERVO`, `D6`],
+            [`GND`, `GND`],
+          ],
+        },
+        {
+          part: `lcd`,
+          title: `LCD 16x2`,
+          pins: [
+            [`SDA`, `SDA`],
+            [`SCL`, `SCL`],
             [`GND`, null],
           ],
         },

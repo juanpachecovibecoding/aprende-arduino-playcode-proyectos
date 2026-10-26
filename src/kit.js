@@ -15190,7 +15190,7 @@ function $c() {
     t
   );
 }
-function el() {
+function el(col = `#e3604b`) {
   let t = new R(),
     n = new R();
   (n.scale.setScalar(0.72), t.add(n));
@@ -15211,7 +15211,7 @@ function el() {
     i.quadraticCurveTo(-21.5, 10.2, -21.5, 8),
     i.lineTo(-21.5, 5),
     i.quadraticCurveTo(-21.5, 3, -20, 3));
-  let a = X(`#e3604b`, 0.45),
+  let a = X(col, 0.45),
     o = new V(
       new Ha(i, {
         depth: 16,
@@ -17167,6 +17167,774 @@ function Ou({ pad: t = new I(-40, 0.5, 10) } = {}) {
     n
   );
 }
+var zu = {
+  lcdPins: [-1.5, -0.5, 0.5, 1.5].map((e) => new I(-21, 2.2, e * J)),
+  garagePins: [0, 1, 2, 3, 4].map((e) => new I(-43, 2.6, 12 + (e - 2) * J)),
+  trashPins: [0, 1, 2, 3, 4].map((e) => new I(-22, 2.6, 2 + (e - 2) * J)),
+  weatherPins: [0, 1, 2, 3, 4, 5, 6].map((e) => new I(-43, 2.6, 12 + (e - 3) * J)),
+};
+function Pu() {
+  let t = new R(),
+    n = $(640, 300, (e, t, n) => {
+      ((e.fillStyle = `#247a48`),
+        e.fillRect(0, 0, t, n),
+        (e.strokeStyle = `rgba(255,255,255,0.75)`),
+        (e.lineWidth = 4),
+        e.strokeRect(12, 12, t - 24, n - 24),
+        (e.fillStyle = `#d9b85f`));
+      for (let [r, i] of [
+        [28, 28],
+        [t - 28, 28],
+        [28, n - 28],
+        [t - 28, n - 28],
+      ])
+        (e.beginPath(),
+          e.arc(r, i, 12, 0, Math.PI * 2),
+          e.fill(),
+          (e.fillStyle = `#1b212c`),
+          e.beginPath(),
+          e.arc(r, i, 6, 0, Math.PI * 2),
+          e.fill(),
+          (e.fillStyle = `#d9b85f`));
+      ((e.fillStyle = `rgba(255,255,255,0.9)`),
+        (e.font = `700 22px "Barlow Semi Condensed", sans-serif`),
+        (e.textAlign = `left`),
+        [`GND`, `VCC`, `SDA`, `SCL`].forEach((t, r) =>
+          e.fillText(t, 44, n / 2 + (r - 1.5) * 32 + 7),
+        ),
+        (e.textAlign = `right`),
+        e.fillText(`LCD 16x2 I2C`, t - 42, n - 20));
+    }),
+    r = X(`#216e41`, 0.55),
+    i = new V(new H(48, 1.8, 22), [
+      r,
+      r,
+      X(`#ffffff`, 0.55, 0, { map: n }),
+      r,
+      r,
+      r,
+    ]);
+  ((i.position.y = 0.9),
+    t.add(i),
+    t.add(Z(41, 3.8, 15.6, X(`#1c202a`, 0.45), 2, 1.8, 0)));
+  let a = document.createElement(`canvas`);
+  ((a.width = 512), (a.height = 160));
+  let o = new Si(a);
+  ((o.colorSpace = Ke), (o.anisotropy = 8));
+  let s = new V(
+    new Ka(37.4, 12),
+    new co({
+      color: `#0e3a94`,
+      roughness: 0.28,
+      emissive: `#ffffff`,
+      emissiveMap: o,
+      emissiveIntensity: 1.15,
+    }),
+  );
+  ((s.rotation.x = -Math.PI / 2),
+    s.position.set(2, 5.65, 0),
+    t.add(s),
+    t.add(Z(2.5, 2.5, 10.2, X(`#24272f`, 0.5), -21, 1.8, 0)));
+  for (let e of zu.lcdPins)
+    t.add(Z(0.64, 5.8, 0.64, Kc, e.x, 1.8, e.z));
+  return (
+    (t.userData.lcd = { canvas: a, tex: o, drawn: null }),
+    Fu(t, { free: 1, total: 3, open: !1, active: !1 }),
+    (t.userData.part = {
+      name: e(`16×2 LCD screen (I²C)`),
+      desc: e(
+        `Shows 2 rows of 16 characters over the I²C bus (SDA and SCL): live available spaces and barrier state.`,
+      ),
+    }),
+    Q(t, 2, 7.5, 0),
+    t
+  );
+}
+function Fu(t, n) {
+  let r = t?.userData?.lcd;
+  if (!r) return;
+  let i = n
+    ? `${n.free}|${n.total ?? 3}|${n.open ? 1 : 0}|${n.active !== !1 ? 1 : 0}|${n.line1 ?? ``}|${n.line2 ?? ``}`
+    : `off`;
+  if (r.drawn === i) return;
+  r.drawn = i;
+  let a = r.canvas.getContext(`2d`),
+    o = r.canvas.width,
+    s = r.canvas.height,
+    c = !n || n.active !== !1;
+  ((a.fillStyle = c ? `#1452d4` : `#0c2f7a`), a.fillRect(0, 0, o, s));
+  let l = 26,
+    u = 52,
+    d = 4,
+    f = 8,
+    p = (o - (16 * l + 15 * d)) / 2,
+    m = (s - (2 * u + f)) / 2;
+  a.fillStyle = c ? `rgba(8, 32, 96, 0.42)` : `rgba(5, 20, 62, 0.5)`;
+  for (let e = 0; e < 2; e++)
+    for (let t = 0; t < 16; t++)
+      a.fillRect(p + t * (l + d), m + e * (u + f), l, u);
+  if (n) {
+    let t = n.total ?? 3,
+      r = n.line1 ?? `Espacios: ${n.free}/${t}`,
+      i =
+        n.line2 ??
+        (n.open
+          ? e(`Barrera: ABIERTA`)
+          : n.free <= 0
+            ? e(`CUPOS: COMPLETO`)
+            : e(`Barrera: CERRADA`));
+    ((a.fillStyle = c ? `#f6fbff` : `rgba(220, 236, 255, 0.72)`),
+      (a.font = `700 35px "Courier New", monospace`),
+      (a.textAlign = `center`),
+      (a.textBaseline = `middle`),
+      [...r.slice(0, 16)].forEach((e, t) => {
+        a.fillText(e, p + t * (l + d) + l / 2, m + u / 2 + 2);
+      }),
+      [...i.slice(0, 16)].forEach((e, t) => {
+        a.fillText(e, p + t * (l + d) + l / 2, m + u + f + u / 2 + 2);
+      }));
+  }
+  r.tex.needsUpdate = !0;
+}
+function Iu() {
+  let t = new R(),
+    n = 86,
+    r = 78,
+    i = X(`#cfa36c`, 0.75),
+    a = X(`#b88952`, 0.78);
+  t.add(Z(n, 2.4, r, i, 0, 0, 0));
+  let o = $(1024, 920, (e, t, n) => {
+      ((e.fillStyle = `#2b2f3a`), e.fillRect(0, 0, t, n));
+      let r = n * 0.44;
+      ((e.fillStyle = `#f2c23a`),
+        e.fillRect(46, 24, t - 92, 12),
+        [0, 1, 2, 3].forEach((n) => {
+          let i = 96 + (n * (t - 192)) / 3;
+          e.fillRect(i - 6, 24, 12, r - 24);
+        }),
+        (e.fillStyle = `rgba(255,255,255,0.16)`),
+        (e.font = `700 72px "Barlow Semi Condensed", sans-serif`),
+        (e.textAlign = `center`),
+        (e.textBaseline = `middle`),
+        [0, 1, 2].forEach((n) => {
+          let i = 96 + ((n + 0.5) * (t - 192)) / 3;
+          e.fillText(`P${n + 1}`, i, r * 0.55);
+        }),
+        (e.fillStyle = `#f4efe3`));
+      for (let t = r + 70; t < n - 40; t += 76) {
+        (e.fillRect(280 - 6, t, 12, 42), e.fillRect(t * 0 + 744 - 6, t, 12, 42));
+      }
+      let i = (t, n, r) => {
+        (e.save(),
+          e.translate(t, n),
+          r < 0 && e.rotate(Math.PI),
+          (e.fillStyle = `#f4efe3`),
+          e.beginPath(),
+          e.moveTo(0, -48),
+          e.lineTo(34, -6),
+          e.lineTo(13, -6),
+          e.lineTo(13, 46),
+          e.lineTo(-13, 46),
+          e.lineTo(-13, -6),
+          e.lineTo(-34, -6),
+          e.closePath(),
+          e.fill(),
+          e.restore());
+      };
+      (i(195, n - 135, 1), i(825, n - 135, -1));
+    }),
+    s = new V(new Ka(n - 5, r - 5), X(`#ffffff`, 0.82, 0, { map: o }));
+  ((s.rotation.x = -Math.PI / 2), (s.position.y = 2.44), t.add(s));
+  let c = $(512, 64, (e, t, n) => {
+      ((e.fillStyle = `#f2c23a`),
+        e.fillRect(0, 0, t, n),
+        (e.fillStyle = `#20232b`));
+      for (let r = -n; r < t + n; r += 48) {
+        (e.beginPath(),
+          e.moveTo(r, n),
+          e.lineTo(r + 24, n),
+          e.lineTo(r + 24 + n, 0),
+          e.lineTo(r + n, 0),
+          e.closePath(),
+          e.fill());
+      }
+    }),
+    l = X(`#ffffff`, 0.6, 0, { map: c });
+  let ha = new V(new H(n - 0.2, 3.2, 2.8), [a, a, l, a, l, l]);
+  (ha.position.set(0, 20, -r / 2 + 1.3),
+    t.add(Z(n, 16, 2.6, i, 0, 2.4, -r / 2 + 1.3), ha));
+  for (let e of [-1, 1]) {
+    (t.add(Z(2.6, 15, r * 0.64, i, e * (n / 2 - 1.3), 2.4, -r * 0.18)),
+      t.add(Z(2.6, 7.5, r * 0.36, i, e * (n / 2 - 1.3), 2.4, r * 0.32)));
+    let o = new V(new H(2.8, 2.4, r * 0.34), [l, l, l, a, a, a]);
+    (o.position.set(e * (n / 2 - 1.3), 11.1, r * 0.32), t.add(o));
+  }
+  t.add(Z(2.8, 7.5, 25, i, 0, 2.4, 24.5));
+  let u = [-24, 0, 24],
+    d = u.map((e, n) => {
+      let i = X(`#e8392e`, 0.25, 0, {
+          emissive: `#e8392e`,
+          emissiveIntensity: 0.9,
+        }),
+        a = new V(new Ja(2.1, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), i);
+      ((a.rotation.x = Math.PI / 2),
+        a.position.set(e, 13.5, -r / 2 + 2.6),
+        t.add(a));
+      let o = new V(new U(2.5, 2.5, 0.7, 24), X(`#2a2d38`, 0.5));
+      ((o.rotation.x = Math.PI / 2),
+        o.position.set(e, 13.5, -r / 2 + 2.8),
+        t.add(o));
+      let s = Ac(`#e8392e`, 16);
+      (s.position.set(e, 13.5, -r / 2 + 4.8), t.add(s));
+      let c = new V(
+        new H(21, 5, 28),
+        new qr({ transparent: !0, opacity: 0, depthWrite: !1 }),
+      );
+      return (
+        c.position.set(e, 5, -21),
+        (c.userData.bay = n),
+        t.add(c),
+        { lens: i, glow: s }
+      );
+    });
+  for (let e of [-1, 1]) {
+    let n = e * 33.5;
+    t.add(Z(11, 14, 7, a, n, 2.4, 8));
+    let r = Yc({ withLabel: !1 });
+    (r.scale.setScalar(0.54),
+      r.rotation.set(90 * Y, 0, 0),
+      r.position.set(n, 16.2, 11.8),
+      t.add(r),
+      e < 0 && (t.userData.sensor = r));
+  }
+  t.add(Z(14, 3.2, 14, a, -33.5, 2.4, 21));
+  let f = new R();
+  f.position.set(-32.5, 5.6, 21);
+  let p = X(`#3f67c4`, 0.4);
+  (f.add(Z(9, 10, 14, p, 0, 0, 0)),
+    f.add(Z(9, 1.6, 19, p, 0, 6.8, 0)));
+  let m = new V(new U(2.6, 2.6, 2.2, 24), p);
+  (m.position.set(1.5, 11.1, 3.2), f.add(m), t.add(f));
+  let h = new R();
+  h.position.set(-31, 17.8, 24.2);
+  let g = $(512, 64, (e, t, n) => {
+      ((e.fillStyle = `#f7f3ea`), e.fillRect(0, 0, t, n), (e.fillStyle = `#e03c31`));
+      for (let r = -n; r < t + n; r += 64) {
+        (e.beginPath(),
+          e.moveTo(r, n),
+          e.lineTo(r + 32, n),
+          e.lineTo(r + 32 + n, 0),
+          e.lineTo(r + n, 0),
+          e.closePath(),
+          e.fill());
+      }
+    }),
+    _ = X(`#ffffff`, 0.45, 0, { map: g }),
+    v = X(`#f7f3ea`, 0.5),
+    y = new V(new H(29, 2.6, 1.2), [v, v, v, v, _, _]);
+  (y.position.set(13.5, 0, 0), h.add(y));
+  let b = new V(new U(1.8, 1.8, 1.8, 20), X(`#f4efe3`, 0.45));
+  ((b.rotation.x = Math.PI / 2), h.add(b), t.add(h));
+  let S = X(`#24272f`, 0.5);
+  for (let e of zu.garagePins)
+    (t.add(Z(2.4, 2.4, 2.4, S, e.x, 2.4, e.z)),
+      t.add(Z(0.64, 5.8, 0.64, Kc, e.x, 2.4, e.z)));
+  let C = [`#e3604b`, `#f3efe6`, `#3d7be0`],
+    w = C.map((e, n) => {
+      let r = el(e);
+      return (
+        r.scale.setScalar(0.58),
+        (r.rotation.y = 90 * Y),
+        r.position.set(u[n], 2.45, -21),
+        (r.userData.bay = n),
+        (r.userData.loose = !0),
+        t.add(r),
+        r
+      );
+    }),
+    T = el(`#f0a53a`);
+  (T.scale.setScalar(0.58),
+    (T.rotation.y = -90 * Y),
+    T.position.set(-19, 2.45, 33),
+    (T.visible = !1),
+    (T.userData.bay = -1),
+    (T.userData.loose = !0),
+    t.add(T));
+  let E = { occupied: [1, 1, 0], gateAngle: 0 };
+  return (
+    (t.userData.garage = {
+      bays: d,
+      cars: w,
+      runner: T,
+      gate: h,
+      bayX: u,
+      state: E,
+    }),
+    (t.userData.tapped = (e) => {
+      let n = e;
+      for (; n && n !== t && n.userData.bay === void 0;) n = n.parent;
+      if (n?.userData.bay !== void 0) {
+        let e = E.occupied.filter(Boolean).length;
+        return (e + 1) % 4;
+      }
+    }),
+    Lu(t, { cars: 2, gateAngle: 0 }),
+    (t.userData.noLift = !0),
+    (t.userData.part = {
+      name: e(`Mini automatic parking lot`),
+      desc: e(
+        `3 parking bays with red/green status LEDs, an HC-SR04 entrance sensor, and an SG90 barrier arm. Click the cars to change occupancy.`,
+      ),
+      big: !0,
+    }),
+    Q(t, -12, 22, 0),
+    t
+  );
+}
+function Uu() {
+  let t = new R(),
+    n = 84,
+    r = 76,
+    i = X(`#c58e56`, 0.72),
+    a = X(`#9d6c3a`, 0.78),
+    o = X(`#f5f2ea`, 0.45),
+    s = X(`#b8bec6`, 0.35, 0.58),
+    c = X(`#686e78`, 0.5, 0.3);
+  (t.add(Z(n, 2.6, r, a, 0, 0, 0)),
+    t.add(Z(n, 2.8, 3.2, i, 0, 2.6, -r / 2 + 1.6)),
+    t.add(Z(n, 2.8, 3.2, i, 0, 2.6, r / 2 - 1.6)),
+    t.add(Z(3.2, 2.8, r - 6.4, i, -n / 2 + 1.6, 2.6, 0)),
+    t.add(Z(3.2, 2.8, r - 6.4, i, n / 2 - 1.6, 2.6, 0)));
+  let l = $(1024, 920, (e, t, n) => {
+      ((e.fillStyle = `#598e3b`), e.fillRect(0, 0, t, n));
+      for (let [r, i, a, o, s] of [
+        [280, 320, 220, 140, `#6ca349`],
+        [720, 620, 240, 170, `#4c7e31`],
+        [200, 690, 190, 120, `#6ca349`],
+        [520, 230, 150, 95, `#7b5e3d`],
+        [630, 420, 130, 90, `#876744`],
+        [360, 560, 175, 110, `#7b5e3d`],
+      ])
+        (e.fillStyle = s),
+          e.beginPath(),
+          e.ellipse(r, i, a, o, 0.2, 0, Math.PI * 2),
+          e.fill();
+      ((e.strokeStyle = `#b3b6ba`),
+        (e.lineWidth = 96),
+        (e.lineCap = `round`),
+        e.beginPath(),
+        e.moveTo(640, 70),
+        e.quadraticCurveTo(830, 440, 670, 850),
+        e.stroke(),
+        (e.strokeStyle = `#9a9ea4`),
+        (e.lineWidth = 4),
+        e.stroke());
+      for (let r = 0; r < 420; r++) {
+        let i = (r * 173) % t,
+          a = (r * 257) % n;
+        ((e.fillStyle =
+          r % 3 === 0
+            ? `rgba(255,255,255,0.12)`
+            : r % 2 === 0
+              ? `rgba(45,82,24,0.18)`
+              : `rgba(110,80,45,0.16)`),
+          e.fillRect(i, a, 5, 5));
+      }
+    }),
+    u = new V(new Ka(n - 6.4, r - 6.4), X(`#ffffff`, 0.88, 0, { map: l }));
+  ((u.rotation.x = -Math.PI / 2), u.position.set(0, 2.65, 0), t.add(u));
+  let d = n / 2 - 4.4,
+    f = r / 2 - 4.4;
+  for (let e of [-1, 1]) {
+    t.add(Z(d * 2, 0.85, 0.75, o, 0, 5.2, e * f));
+    t.add(Z(d * 2, 0.85, 0.75, o, 0, 7.6, e * f));
+    t.add(Z(0.75, 0.85, f * 2, o, e * d, 5.2, 0));
+    t.add(Z(0.75, 0.85, f * 2, o, e * d, 7.6, 0));
+  }
+  for (let e = 0; e <= 4; e++) {
+    let n = -d + (e * d * 2) / 4,
+      r = -f + (e * f * 2) / 4;
+    (t.add(Z(1.35, 6.6, 1.35, o, n, 2.6, -f)),
+      t.add(Z(1.35, 6.6, 1.35, o, n, 2.6, f)),
+      e > 0 &&
+        e < 4 &&
+        (t.add(Z(1.35, 6.6, 1.35, o, -d, 2.6, r)),
+        t.add(Z(1.35, 6.6, 1.35, o, d, 2.6, r))));
+  }
+  for (let [e, n, r, i] of [
+    [-31, -24, 4.4, `#2d5e23`],
+    [-29, 18, 4.2, `#3a722c`],
+    [-6, 25, 5.1, `#2d5e23`],
+    [6, -25, 4.8, `#346927`],
+    [29, 17, 4.6, `#2d5e23`],
+    [25, 22, 3.4, `#c9b842`],
+    [13, -4, 3.6, `#6aa144`],
+    [-9, -6, 3.2, `#3a722c`],
+  ]) {
+    let a = new V(
+      new Ja(r, 7, 5),
+      X(i, 0.85, 0, { flatShading: !0 }),
+    );
+    (a.scale.set(1.15, 0.68, 1.05), a.position.set(e, 2.6 + r * 0.42, n), t.add(a));
+  }
+  let p = new R();
+  p.position.set(-20, 2.6, -13);
+  for (let e of [-5.2, 5.2])
+    for (let t of [-4.6, 4.6])
+      p.add(Z(1.3, 13.5, 1.3, o, e, 0, t));
+  (p.add(Z(11.4, 0.9, 1, o, 0, 5.5, -4.6)),
+    p.add(Z(11.4, 0.9, 1, o, 0, 5.5, 4.6)),
+    p.add(Z(1, 0.9, 10.2, o, -5.2, 5.5, 0)),
+    p.add(Z(1, 0.9, 10.2, o, 5.2, 5.5, 0)),
+    p.add(Z(12.2, 1.1, 11, o, 0, 13.2, 0)));
+  let bme = new R();
+  bme.position.set(0, 18.2, 0);
+  bme.add(Z(4.8, 0.8, 6.8, X(`#7c3da8`, 0.4), 0, 0, 0));
+  bme.add(Z(2.2, 0.55, 2.2, X(`#d4d7dc`, 0.2, 0.85), 0, 0.65, 0.4));
+  for (let e of [-1.5, -0.5, 0.5, 1.5]) {
+    bme.add(Z(0.5, 1.8, 0.5, Kc, e * 1.1, -0.6, -2.7));
+  }
+  p.add(bme);
+  let m = $(128, 128, (e, t, n) => {
+      ((e.fillStyle = `#f5f2ea`), e.fillRect(0, 0, t, n), (e.fillStyle = `#8c929c`));
+      for (let r = 16; r < n - 14; r += 11) e.fillRect(14, r, t - 28, 4.5);
+      ((e.strokeStyle = `#d8d3c6`),
+        (e.lineWidth = 8),
+        e.strokeRect(6, 6, t - 12, n - 12));
+    }),
+    h = X(`#ffffff`, 0.5, 0, { map: m }),
+    g = new V(new H(12.6, 12.6, 11.4), [h, h, o, o, h, h]);
+  g.position.set(0, 20.4, 0);
+  let _ = new V(new H(15.6, 1.4, 14.2), o);
+  ((_.position.set(0, 27.3, 0)),
+    (_.rotation.z = 0.08),
+    p.add(g, _),
+    t.add(p));
+  let v = new R();
+  (v.position.set(2, 2.6, -8), v.add(Z(9.2, 1.2, 9.2, X(`#cfd3d8`, 0.7), 0, 0, 0)));
+  for (let e of [-1, 1])
+    for (let t of [-1, 1]) {
+      let n = new V(new U(0.48, 0.62, 29, 8), s);
+      (n.position.set(e * 2.3, 15.2, t * 2.3),
+        (n.rotation.z = e * 0.045),
+        (n.rotation.x = -t * 0.045),
+        v.add(n));
+    }
+  for (let e = 0; e < 5; e++) {
+    let t = 5 + e * 5.8,
+      n = 5.4 - e * 0.45;
+    (v.add(Z(n, 0.55, 0.55, s, 0, t, -n / 2)),
+      v.add(Z(n, 0.55, 0.55, s, 0, t, n / 2)),
+      v.add(Z(0.55, 0.55, n, s, -n / 2, t, 0)),
+      v.add(Z(0.55, 0.55, n, s, n / 2, t, 0)));
+  }
+  (v.add(Z(4.2, 4.4, 2.2, o, -1.8, 19.5, 2.6)),
+    v.add(new V(new U(0.55, 0.55, 14, 14), s)).translateY(34.5));
+  let y = new R();
+  y.position.set(0, 36.2, 0);
+  let b = new V(new U(1.1, 1.1, 1.8, 16), c);
+  y.add(b);
+  let S = X(`#1f232b`, 0.4, 0.2);
+  for (let e = 0; e < 3; e++) {
+    let t = new R();
+    t.rotation.y = (e * Math.PI * 2) / 3;
+    let n = new V(new U(0.28, 0.28, 5.4, 8), s);
+    ((n.rotation.z = Math.PI / 2), n.position.set(2.7, 0, 0), t.add(n));
+    let r = new V(
+      new Ja(1.45, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.58),
+      S,
+    );
+    ((r.rotation.x = Math.PI / 2), r.position.set(5.4, 0, 0), t.add(r), y.add(t));
+  }
+  v.add(y);
+  let C = new R();
+  C.position.set(0, 41.2, 0);
+  let w = new V(new U(0.28, 0.28, 9.2, 10), s);
+  ((w.rotation.z = Math.PI / 2),
+    C.add(w),
+    C.add(Z(2.8, 3.2, 0.45, o, -4.4, 0.2, 0)));
+  let T = new V(new U(0.1, 1.2, 2.4, 12), c);
+  ((T.rotation.z = -Math.PI / 2),
+    T.position.set(4.8, 0, 0),
+    C.add(T),
+    v.add(C),
+    t.add(v));
+  let E = new R();
+  E.position.set(11, 2.6, 13);
+  (E.add(Z(8.6, 0.8, 8.6, X(`#9da3ab`, 0.75), 0, 0, 0)),
+    E.add(new V(new U(4.2, 4.5, 2.2, 24), c)).translateY(1.8));
+  let D = new V(new U(2.7, 2.7, 11.2, 28), s);
+  (D.position.set(0, 8.4, 0), E.add(D));
+  let O = new V(new U(2.4, 2.2, 0.8, 24), S);
+  (O.position.set(0, 13.8, 0), E.add(O), t.add(E));
+  let k = new R();
+  k.position.set(23, 2.6, 3);
+  k.add(new V(new U(0.58, 0.58, 10.5, 14), c)).translateY(5.2);
+  for (let e = 0; e < 5; e++) {
+    let t = new V(new U(2.3, 2.5, 0.65, 20), o);
+    (t.position.set(0, 10.2 + e * 1.05, 0), k.add(t));
+  }
+  (t.add(k), t.add(Z(3.4, 1.1, 3.4, o, 18.5, 2.6, 10.5)));
+  let A = X(`#24272f`, 0.5);
+  for (let e of zu.weatherPins)
+    (t.add(Z(2.4, 2.4, 2.4, A, e.x, 2.4, e.z)),
+      t.add(Z(0.64, 5.8, 0.64, Kc, e.x, 2.4, e.z)));
+  let M = { cupAngle: 0, vaneAngle: 0.4, wind: 12 };
+  return (
+    (t.userData.weather = {
+      anemometer: y,
+      vane: C,
+      state: M,
+    }),
+    (t.userData.tapped = () => {
+      let e = M.wind ?? 12;
+      return e < 18 ? 28 : e < 35 ? 44 : 12;
+    }),
+    Wu(t, { cupAngle: 0, vaneAngle: 0.4, wind: 12 }),
+    (t.userData.noLift = !0),
+    (t.userData.part = {
+      name: e(`Mini weather station`),
+      desc: e(
+        `Includes a louvered Stevenson screen with a BME280 sensor (temperature, humidity, atmospheric pressure), a lattice tower with spinning 3-cup anemometer and wind vane, a tipping-bucket rain gauge, and a 16x2 I2C LCD screen.`,
+      ),
+      big: !0,
+    }),
+    Q(t, 2, 43, -8),
+    t
+  );
+}
+function Wu(e, { cupAngle: t, vaneAngle: n, wind: r, dir: d } = {}) {
+  let i = e?.userData?.weather;
+  if (!i) return;
+  (t !== void 0 && (i.state.cupAngle = t),
+    n !== void 0 && (i.state.vaneAngle = n),
+    d !== void 0 && (i.state.dir = d),
+    r !== void 0 && (i.state.wind = r),
+    (i.anemometer.rotation.y = i.state.cupAngle),
+    (i.vane.rotation.y = i.state.vaneAngle));
+}
+function Bu() {
+  let t = new R(),
+    n = X(`#c89b62`, 0.82),
+    r = X(`#b5864e`, 0.86),
+    i = X(`#7d5832`, 0.9),
+    a = X(`#3a3f4d`, 0.65);
+  (t.add(Z(48, 1.6, 36, a, -3, 0, 0)),
+    t.add(Z(34, 1.8, 28, r, 0, 1.6, 0)),
+    t.add(Z(34, 44, 2, n, 0, 1.6, -13)),
+    t.add(Z(2, 44, 24, n, -16, 1.6, 0)),
+    t.add(Z(2, 44, 24, n, 16, 1.6, 0)),
+    t.add(Z(34, 43.2, 2, n, 0, 1.6, 13)),
+    t.add(Z(30, 1.2, 24, i, 0, 2.8, 0)));
+  for (let [e, o, s, c] of [
+    [-6, 6.2, -3, `#f4efe2`],
+    [5, 6.5, 2, `#67a9e0`],
+    [-1, 5.8, 5, `#f2c23a`],
+    [6, 7.2, -5, `#48b86c`],
+  ]) {
+    let l = new V(
+      new Ja(4.2, 7, 6),
+      X(c, 0.75, 0, { flatShading: !0 }),
+    );
+    (l.position.set(e, o, s), t.add(l));
+  }
+  let o = $(256, 340, (e, t, n) => {
+      ((e.fillStyle = `#c89b62`), e.fillRect(0, 0, t, n));
+      e.strokeStyle = `rgba(120, 80, 35, 0.14)`;
+      e.lineWidth = 2;
+      for (let r = 8; r < n; r += 10)
+        (e.beginPath(), e.moveTo(0, r), e.lineTo(t, r), e.stroke());
+      e.save();
+      e.translate(t / 2, 214);
+      let r = `#1e8c45`;
+      ((e.strokeStyle = r),
+        (e.fillStyle = r),
+        (e.lineWidth = 14),
+        (e.lineCap = `round`),
+        (e.lineJoin = `round`));
+      for (let t = 0; t < 3; t++) {
+        (e.save(),
+          e.rotate((t * Math.PI * 2) / 3),
+          e.beginPath(),
+          e.moveTo(-22, -40),
+          e.lineTo(0, -56),
+          e.lineTo(24, -18),
+          e.stroke(),
+          e.beginPath(),
+          e.moveTo(30, -6),
+          e.lineTo(10, -20),
+          e.lineTo(31, -28),
+          e.closePath(),
+          e.fill(),
+          e.restore());
+      }
+      e.restore();
+    }),
+    s = new V(new Ka(31.6, 41.5), X(`#ffffff`, 0.8, 0, { map: o }));
+  (s.position.set(0, 23.2, 14.08), t.add(s));
+  let c = Yc({ withLabel: !1 });
+  (c.scale.setScalar(0.62),
+    c.rotation.set(90 * Y, 0, 0),
+    c.position.set(0, 33.5, 14.5),
+    t.add(c),
+    (t.userData.sensor = c));
+  let l = $(256, 36, (e, t, n) => {
+      ((e.fillStyle = `#b07f47`),
+        e.fillRect(0, 0, t, n),
+        (e.fillStyle = `#d8b07a`),
+        e.fillRect(0, 0, t, 6),
+        e.fillRect(0, n - 6, t, 6),
+        (e.strokeStyle = `#6e4b26`),
+        (e.lineWidth = 3),
+        e.beginPath());
+      for (let r = 0; r <= t; r += 8) {
+        let t = r % 16 === 0 ? 8 : n - 8;
+        r === 0 ? e.moveTo(r, t) : e.lineTo(r, t);
+      }
+      e.stroke();
+    }),
+    u = X(`#ffffff`, 0.8, 0, { map: l }),
+    d = new R();
+  d.position.set(0, 45.6, -13.2);
+  let f = new V(new H(35.4, 2, 28.6), [u, u, n, r, u, u]);
+  (f.position.set(0, 1, 13.6),
+    d.add(f),
+    d.add(Z(2.2, 5.2, 8.4, r, -17.8, -4.2, 11.5)),
+    t.add(d));
+  let p = new R();
+  p.position.set(-19.2, 30.5, -3.2);
+  let m = X(`#3f67c4`, 0.4);
+  (p.add(Z(6.4, 11.5, 12.2, m, 0, 0, 0)),
+    p.add(Z(6.4, 1.5, 16.8, m, 0, 7.6, 0)));
+  let h = new V(new U(2.4, 2.4, 2.2, 20), m);
+  ((h.rotation.z = Math.PI / 2),
+    h.position.set(-3.8, 8.8, 2.4),
+    p.add(h),
+    t.add(p));
+  let g = new R();
+  g.position.set(-20.4, 39.3, -0.8);
+  let _ = X(`#f4efe3`, 0.45),
+    v = new V(new U(1.8, 1.8, 1.2, 18), _);
+  ((v.rotation.z = Math.PI / 2),
+    g.add(v),
+    g.add(Z(1, 2.2, 9.6, _, 0, -1.1, 4)),
+    t.add(g));
+  let y = new V(
+    new U(0.45, 0.45, 1, 12),
+    X(`#d4d6dc`, 0.28, 0.78),
+  );
+  t.add(y);
+  let b = X(`#24272f`, 0.5);
+  for (let e of zu.trashPins)
+    (t.add(Z(2.4, 2.4, 2.4, b, e.x, 1.6, e.z)),
+      t.add(Z(0.64, 5.6, 0.64, Kc, e.x, 1.6, e.z)));
+  let S = { lidAngle: 0, near: !1 };
+  return (
+    (t.userData.trash = {
+      lid: d,
+      horn: g,
+      rod: y,
+      state: S,
+    }),
+    (t.userData.tapped = () => (S.near ? 28 : 8)),
+    Vu(t, { lidAngle: 0, near: !1 }),
+    (t.userData.noLift = !0),
+    (t.userData.part = {
+      name: e(`Smart cardboard trash bin`),
+      desc: e(
+        `An HC-SR04 sensor on the front detects your hand or trash, and an SG90 servo on the side pushes the wire linkage to open the cardboard lid.`,
+      ),
+      big: !0,
+    }),
+    Q(t, 0, 48, 0),
+    t
+  );
+}
+function Vu(e, { lidAngle: t, near: n } = {}) {
+  let r = e?.userData?.trash;
+  if (!r) return;
+  (t !== void 0 && (r.state.lidAngle = t),
+    n !== void 0 && (r.state.near = n));
+  let i = Math.max(0, Math.min(80, r.state.lidAngle ?? 0)),
+    a = i * Y,
+    o = (10 + i * 0.72) * Y;
+  ((r.lid.rotation.x = -a), (r.horn.rotation.x = -o));
+  let s = new I(
+      -20.4,
+      39.3 + 8.2 * Math.sin(o),
+      -0.8 + 8.2 * Math.cos(o),
+    ),
+    c = new I(
+      -18.8,
+      45.6 - 2.6 * Math.cos(a) + 11.5 * Math.sin(a),
+      -13.2 + 11.5 * Math.cos(a) + 2.6 * Math.sin(a),
+    ),
+    l = c.clone().sub(s),
+    u = Math.max(0.1, l.length());
+  (r.rod.position.copy(s).add(c).multiplyScalar(0.5),
+    r.rod.scale.set(1, u, 1),
+    r.rod.quaternion.setFromUnitVectors(new I(0, 1, 0), l.normalize()));
+}
+function Hu() {
+  let t = new R(),
+    n = new V(new U(9, 10, 1.4, 28), X(`#d8cbb8`, 0.7));
+  ((n.position.y = 0.7), t.add(n));
+  let r = new V(new U(5.2, 4.1, 13.5, 24), X(`#3fae6a`, 0.45));
+  (r.position.set(-2.2, 8.1, 0), t.add(r));
+  let i = new V(new U(5.4, 5.4, 1.2, 24), X(`#f4efe3`, 0.4));
+  (i.position.set(-2.2, 15.1, 0), t.add(i));
+  let a = new V(
+    new Ja(4.4, 8, 6),
+    X(`#f5f0e2`, 0.75, 0, { flatShading: !0 }),
+  );
+  return (
+    a.position.set(4.2, 5.2, 1.5),
+    t.add(a),
+    (t.userData.part = {
+      name: e(`Recyclable trash`),
+      desc: e(`Drag it closer to the bin (< 15 cm) to trigger the ultrasonic sensor and open the lid.`),
+    }),
+    Q(t, 0, 17, 0),
+    t
+  );
+}
+function Lu(e, { cars: t, occupied: n, gateAngle: r, runner: i } = {}) {
+  let a = e?.userData?.garage;
+  if (!a) return;
+  let o =
+    n ??
+    [0, 1, 2].map((e) =>
+      e < Math.max(0, Math.min(3, Number(t ?? a.state.cars ?? 2))) ? 1 : 0,
+    );
+  ((a.state.occupied = o),
+    t !== void 0 && (a.state.cars = t),
+    r !== void 0 &&
+      ((a.state.gateAngle = r), (a.gate.rotation.z = r * Y)));
+  for (let e = 0; e < 3; e++) {
+    let t = !!o[e],
+      n = a.cars[e],
+      r = a.bays[e],
+      i = t ? `#e8392e` : `#3fbf6a`;
+    ((n.visible = t),
+      n.position.set(a.bayX[e], 2.45, -21),
+      (n.rotation.y = 90 * Y),
+      r.lens.color.set(i),
+      r.lens.emissive.set(i),
+      (r.lens.emissiveIntensity = 1.35),
+      r.glow.material.color.set(i),
+      (r.glow.material.opacity = 0.82));
+  }
+  if (i !== void 0) {
+    if (!i) a.runner.visible = !1;
+    else {
+      ((a.runner.visible = !0),
+        a.runner.position.set(i.x, 2.45, i.z),
+        (a.runner.rotation.y = (i.rotY ?? -90) * Y));
+      for (let e of a.runner.userData.wheels ?? [])
+        e.rotation.z = i.wheelRot ?? 0;
+    }
+  }
+}
 export {
   Su as $,
   ee as $n,
@@ -17376,4 +18144,14 @@ export {
   le as zn,
   M as zr,
   bi as zt,
+  zu as zu,
+  Pu as Pu,
+  Fu as Fu,
+  Iu as Iu,
+  Lu as Lu,
+  Bu as Bu,
+  Vu as Vu,
+  Hu as Hu,
+  Uu as Uu,
+  Wu as Wu,
 };
